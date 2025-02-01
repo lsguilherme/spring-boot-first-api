@@ -1,6 +1,7 @@
 package com.example.springboot.controllers;
 
 import com.example.springboot.dtos.ProductRecordDto;
+import com.example.springboot.exceptions.ProductNotFoundException;
 import com.example.springboot.models.ProductModel;
 import com.example.springboot.repositories.ProductRepository;
 import jakarta.validation.Valid;
@@ -35,7 +36,8 @@ public class ProductController {
     @GetMapping("/products/{id}")
     public ResponseEntity<Object> getOneProduct(@PathVariable(value="id") UUID id){
         Optional<ProductModel> product = productRepository.findById(id);
-        if (product.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
+
+        if (product.isEmpty()) throw new ProductNotFoundException();
 
         return ResponseEntity.status(HttpStatus.OK).body(product.get());
     }
@@ -43,7 +45,7 @@ public class ProductController {
     @PutMapping("/products/{id}")
     public ResponseEntity<Object> updateProduct(@PathVariable(value = "id") UUID id, @RequestBody @Valid ProductRecordDto productDto){
         Optional<ProductModel> product = productRepository.findById(id);
-        if (product.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
+        if (product.isEmpty()) throw new ProductNotFoundException();
 
         var productModel = product.get();
         BeanUtils.copyProperties(productDto, productModel);
@@ -53,9 +55,9 @@ public class ProductController {
     @DeleteMapping("/products/{id}")
     public ResponseEntity<Object> deleteProduct(@PathVariable(value = "id") UUID id){
         Optional<ProductModel> product = productRepository.findById(id);
-        if (product.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
-
-        productRepository.delete(product.get());
+        if (product.isEmpty()) throw new ProductNotFoundException();
+        
+        productRepository.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).body("Product deleted successfully,");
     }
 
