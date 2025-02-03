@@ -10,8 +10,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -61,6 +68,27 @@ class ProductServiceTest {
             productService.getOneProduct(productId);
         });
         verify(productRepository, times(1)).findById(productId);
+    }
+
+    @Test
+    public void testGetAllProduct(){
+        List<ProductModel> productModels = Arrays.asList(productModel, productModel);
+
+        Page<ProductModel> paginaMock = new PageImpl<>(
+                productModels,
+                PageRequest.of(0,2),
+                productModels.size()
+        );
+
+        when(productRepository.findAll(PageRequest.of(0,2))).thenReturn(paginaMock);
+
+        Page<ProductModel> resultado = productService.getAllProducts(0, 2);
+
+        assertNotNull(resultado);
+        assertEquals(2, resultado.getContent().size());
+        assertEquals("Teste", resultado.getContent().get(0).getName());
+
+        verify(productRepository).findAll(PageRequest.of(0, 2));
     }
 
     @Test

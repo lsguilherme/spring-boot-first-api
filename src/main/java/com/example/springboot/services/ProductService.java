@@ -6,9 +6,10 @@ import com.example.springboot.models.ProductModel;
 import com.example.springboot.repositories.ProductRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,8 +24,8 @@ public class ProductService {
         return productRepository.save(productModel);
     }
 
-    public List<ProductModel> getAllProducts(){
-        return productRepository.findAll();
+    public Page<ProductModel> getAllProducts(int page, int size){
+        return productRepository.findAll(PageRequest.of(page, size));
     }
 
     public ProductModel getOneProduct(UUID id){
